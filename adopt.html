@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adopt a Pet</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        header { background: green; color: white; padding: 10px; text-align: center; }
+        nav ul { list-style: none; padding: 0; text-align: center; }
+        nav ul li { display: inline; margin: 0 10px; }
+        nav ul li a { color: white; text-decoration: none; }
+        section { padding: 20px; }
+        .pet-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .pet { border: 1px solid #ccc; padding: 10px; border-radius: 5px; text-align: center; background: #f9f9f9; }
+        .pet img { width: 100%; height: 150px; object-fit: cover; border-radius: 5px; }
+        button { padding: 8px 12px; background: green; color: white; border: none; cursor: pointer; margin-top: 10px; }
+        footer { background: green; color: white; text-align: center; padding: 10px; position: fixed; bottom: 0; width: 100%; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Adopt a Pet</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="adopt.html">Adopt</a></li>
+                <li><a href="donate.html">Donate</a></li>
+                <li><a href="stories.html">Stories</a></li>
+                <li><a href="admin.html">Admin</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section>
+        <h2>Available Pets for Adoption</h2>
+        <div class="pet-list" id="petList"></div>
+    </section>
+
+    <footer>
+        <p>Contact: rescue@animalshelter.com | Phone: +123 456 7890</p>
+    </footer>
+
+    <script>
+        function loadPets() {
+            let petList = document.getElementById("petList");
+            let petData = localStorage.getItem("newPet");
+
+            if (petData) {
+                let pet = JSON.parse(petData);
+                let petCard = document.createElement("div");
+                petCard.classList.add("pet");
+                petCard.innerHTML = `
+                    <img src="${pet.image}" alt="${pet.name}">
+                    <h3>${pet.name}</h3>
+                    <p>${pet.age}-year-old ${pet.breed}</p>
+                    <button onclick="adoptPet('${pet.name}')">Adopt</button>
+                `;
+                petList.appendChild(petCard);
+                localStorage.removeItem("newPet");
+            }
+        }
+
+        function adoptPet(petName) {
+            alert(petName + " has been adopted!");
+        }
+
+        window.onload = loadPets;
+    </script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        header { background: green; color: white; padding: 10px; text-align: center; }
+        nav ul { list-style: none; padding: 0; text-align: center; }
+        nav ul li { display: inline; margin: 0 10px; }
+        nav ul li a { color: white; text-decoration: none; }
+        section { padding: 20px; }
+        .form-popup { display: none; background: white; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.2); width: 300px; margin: auto; }
+        input, textarea { width: 100%; margin: 5px 0; padding: 8px; }
+        button { margin: 5px; padding: 8px 12px; background: green; color: white; border: none; cursor: pointer; }
+        button.cancel { background: red; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        table, th, td { border: 1px solid black; padding: 10px; text-align: left; }
+        footer { background: green; color: white; text-align: center; padding: 10px; position: fixed; bottom: 0; width: 100%; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="adopt.html">Adopt</a></li>
+                <li><a href="donate.html">Donate</a></li>
+                <li><a href="stories.html">Stories</a></li>
+                <li><a href="admin.html">Admin</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section>
+        <h2>Admin Controls</h2>
+        <button onclick="document.getElementById('addPetForm').style.display='block'">Add Pet</button>
+        <button onclick="document.getElementById('donationForm').style.display='block'">Manage Donations</button>
+        <button onclick="document.getElementById('storyForm').style.display='block'">Post Success Story</button>
+    </section>
+
+    <!-- Add Pet Form -->
+    <div id="addPetForm" class="form-popup">
+        <h2>Add a Pet for Adoption</h2>
+        <label>Pet Name:</label>
+        <input type="text" id="petName" required>
+        <label>Age:</label>
+        <input type="number" id="petAge" required>
+        <label>Breed:</label>
+        <input type="text" id="petBreed" required>
+        <label>Upload Image:</label>
+        <input type="file" id="petImage" accept="image/*" required>
+        <button onclick="addPet()">Submit</button>
+        <button class="cancel" onclick="document.getElementById('addPetForm').style.display='none'">Cancel</button>
+    </div>
+
+    <!-- Donation Management Form -->
+<div id="donationForm" class="form-popup">
+    <h2>Manage Donations</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Bank</th>
+        </tr>
+    </thead>
+        <tbody id="donationTable">
+            
+        </tbody>
+    </table>
+    <button class="cancel" onclick="document.getElementById('donationForm').style.display='none'">Close</button>
+</div>
+
+
+    
+   <!-- Success Story Form -->
+<div id="storyForm" class="form-popup">
+    <h2>Post Success Story</h2>
+    <label>Pet Name:</label>
+    <input type="text" id="storyPetName" required>
+    <label>Upload Image:</label>
+    <input type="file" id="storyPetImage" accept="image/*" required>
+    <label>Success Review:</label>
+    <textarea id="storyReview" required></textarea>
+    <button onclick="postSuccessStory()">Submit</button>
+    <button class="cancel" onclick="document.getElementById('storyForm').style.display='none'">Cancel</button>
+</div>
+
+
+    <footer>
+        <p>Contact: rescue@animalshelter.com | Phone: +123 456 7890</p>
+    </footer>
+
+    <script>
+            function addPet() {
+            let name = document.getElementById("petName").value;
+            let age = document.getElementById("petAge").value;
+            let breed = document.getElementById("petBreed").value;
+            let image = document.getElementById("petImage").files[0];
+
+            if (!name || !age || !breed || !image) {
+                alert("Please fill all fields!");
+                return;
+            }
+
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                let petData = {
+                    name: name,
+                    age: age,
+                    breed: breed,
+                    image: e.target.result
+                };
+                localStorage.setItem("newPet", JSON.stringify(petData));
+                alert("Pet added successfully!");
+                document.getElementById("addPetForm").style.display = "none";
+            };
+            reader.readAsDataURL(image);
+        }
+
+        function postSuccessStory() {
+            const petName = document.getElementById("storyPetName").value;
+            const imageInput = document.getElementById("storyPetImage");
+            const description = document.getElementById("storyReview").value;
+    
+            if (!petName || !imageInput.files.length || !description) {
+                alert("Please fill in all fields.");
+                return;
+            }
+    
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const imageBase64 = event.target.result; // Convert image to base64
+    
+                // Retrieve existing stories or initialize an empty array
+                let stories = JSON.parse(localStorage.getItem("successStories")) || [];
+    
+                // Add new story
+                const newStory = {
+                    petName: petName,
+                    adopter: "Unknown", // Can be modified to accept user input
+                    date: new Date().toISOString().split("T")[0], // Current date
+                    image: imageBase64,
+                    description: description
+                };
+    
+                stories.push(newStory);
+                localStorage.setItem("successStories", JSON.stringify(stories));
+    
+                alert("Success story posted!");
+                document.getElementById("storyForm").style.display = "none";
+            };
+    
+            reader.readAsDataURL(imageInput.files[0]);
+        }
+
+
+        function displayDonations() {
+            const donationTable = document.getElementById('donationTable');
+            donationTable.innerHTML = '';
+
+            const donations = JSON.parse(localStorage.getItem('donations')) || [];
+
+            donations.forEach(donation => {
+                const row = donationTable.insertRow();
+                const nameCell = row.insertCell();
+                const amountCell = row.insertCell();
+                const accountCell = row.insertCell();
+                const dateCell = row.insertCell();
+                const timeCell = row.insertCell();
+                const bankCell = row.insertCell();
+
+                nameCell.textContent = donation.name;
+                amountCell.textContent = donation.amount;
+                accountCell.textContent = donation.account;
+                dateCell.textContent = donation.date;
+                timeCell.textContent = donation.time;
+                bankCell.textContent = donation.bank;
+            });
+        }
+
+        displayDonations();
+    </script>
+    
+</body>
+</html>
